@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use App\File;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +15,30 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::middleware('api')->get('/user', function (Request $request) {
+    return \App\Text::all();
 });
+
+Route::post('/files', function (Request $request) {
+	//Salvataggio file in param
+	$param = $request->file('file');
+
+	//Putfile ritorno il path e lo salvo in $path e salvo il file in locale
+	$path = Storage::disk('local')->putFile('files', $param);	
+	$file = new File;
+	
+	//Aggiorno il record path del file appena creato
+	$file->path = $path;								
+	$file->format = $param->getClientMimeType();		
+	$file->size = $param->getClientSize();
+
+	$file->save();										//Inserimento riga database
+});
+
+Route::get('/files/{id}', function (Request $request, int $id) {
+	$file = File::find($id);
+	$content = Storage::disk('local')->get($file->path);
+	return $content;	
+});
+
+Route::resource('test', 'test');

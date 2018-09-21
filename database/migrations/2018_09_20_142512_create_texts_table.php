@@ -14,7 +14,7 @@ class CreateTextsTable extends Migration
     public function up()
     {
         Schema::create('texts', function (Blueprint $table) {
-            $table->primary('id');
+            $table->increments('id');
             $table->integer('char_number');
             $table->timestamps();
         });
