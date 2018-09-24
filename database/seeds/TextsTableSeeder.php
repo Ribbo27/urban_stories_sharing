@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use App\Text;
 
 class TextsTableSeeder extends Seeder
 {
@@ -11,6 +12,7 @@ class TextsTableSeeder extends Seeder
      */
     public function run()
     {
+    	//Creazione di note fake nel database
         factory(App\Text::class, 10)->create();
     }
 }

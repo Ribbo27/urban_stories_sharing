@@ -6,6 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Text extends Model
 {
+    
+	protected $fillable = ['char_number'];
+
+	protected $guarded = [];
+
     /**
      * Get the file record associated with the text.
      */
