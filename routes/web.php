@@ -12,6 +12,11 @@
 */
 
 Route::get('/', function () {
-	$texts = \App\Text::all();
-    return view('welcome', ['texts' => $texts]);
+    return view('welcome');
 });
+
+Route::get('file', 'textController@showForm')->name('upload.file');
+
+Route::post('/file', 'textController@store');
+
+
