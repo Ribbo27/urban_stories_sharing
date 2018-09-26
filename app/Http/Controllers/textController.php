@@ -4,10 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Input;
 use App\Text;
 use App\File;
+use App\Location;
 
-class textController extends Controller
+
+class TextController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -27,28 +30,46 @@ class textController extends Controller
      */
     public function store(Request $request)
     {
-        if ($request->hasFile('file')) {
 
-            $filename = $request->file->getClientOriginalName();
-
-            $path = $request->file->storeAs('public/uploadedText', $filename);
+        if ($request->all() !== "") {
 
             $text = new Text;
             $file = new File;
+            $location = new Location;
 
-            $file->size = $request->file->getClientSize();
-            $file->format = $request->file->getClientMimeType();
-            $file->path = $path;
+            $filename = 'text-'.time().'.txt';
 
-            $text->char_number = 2;      //TODO: Recuperare char_number dal file in upload
+            $content = $request['content'];
+
+            //$path = Storage::disk('local')->put($filename, $content);
+            //$path = Storage::disk('local')->putFile('files', $request->file('file'));
+
+            //dd($path);
+
+            $file->size = $request['size'];
+            $file->format = $request['format'];
+            $file->path = 'not file';
+
+            $location->latitude = $request['latitude'];
+            $location->longitude = $request['longitude'];
+
+            $text->content = $content;
+            $text->char_number = mb_strlen($content);     
 
             $text->save();
-            $text->file()->save($file);
+            $location->save();
+
+            $location->file()->save($file);                   //Relazione tra Model File e Location
+            $text->file()->save($file);                       //Relazione tra Model File e Text
 
             
 
             return 'file salvato!';
+        }else{
+            return 'Invalid parameters';    
         }
+
+        
 
     }
 
@@ -58,9 +79,13 @@ class textController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($id) 
     {
-        return Text::find($id);
+        if(Text::find($id)){
+            return Text::find($id);
+        }else {
+            return 'Error: ID not found';
+        }
     }
 
     /**
@@ -70,13 +95,19 @@ class textController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id) 
     {
-        $text = Text::find($id);
-        $text->char_number = $request->input('char_number');
-        $text->save();
+        if(Text::find($id)){
+            $text = Text::find($id);
+            $text->content = $request['content'];
+            $text->char_number = mb_strlen($request['content']);
+            $text->save();
 
-        return 202;
+            return 202;
+        }else{
+            echo 'Error: ID not found';
+            return 404;
+        }
     }
 
     /**
@@ -85,14 +116,21 @@ class textController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy($id) 
     {
-        Text::find($id)->delete();
+        if(Text::find($id)) {
+            Text::find($id)->delete();    
 
-        return 204;
+            echo 'Note succesfully deleted';                    //TODO Remove related row in File and Location model
+            return 204;
+        }else {
+            echo 'Error: ID not found';
+        }
+               
     }
 
-    public function showForm() {
+    public function showForm() 
+    {
         return view('upload');
     }
 
