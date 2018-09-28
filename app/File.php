@@ -3,17 +3,20 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Text;
+use App\Note;
+use App\Audio;
+use App\Photo;
+use App\Video;
 
 class File extends Model
 {
 	/**
-     * Get the text that owns the file.
+     * Get the note that owns the file.
      */
-	public function text()
-	{
-		return $this->belongsTo('App\Text');
-	}
+    public function note()
+    {
+        return $this->belongsTo('App\Notes');
+    }
 
 	/**
      * Get the audio that owns the file.
@@ -39,12 +42,4 @@ class File extends Model
 		return $this->belongsTo('App\Video');
 	}
 
-
-	 /**
-     * Get the location that owns the file.
-     */
-    public function location()
-    {
-        return $this->belongsTo('App\Location');
-    }
 }

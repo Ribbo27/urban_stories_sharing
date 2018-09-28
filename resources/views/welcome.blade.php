@@ -65,16 +65,5 @@
         </style>
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            <div class="content">
-                <div class="title m-b-md">
-                    Test Factory Seeder
-                </div>
-                @foreach ($texts as $text) 
-                    <li>{{ $text->char_number }}</li>
-                @endforeach
-
-            </div>
-        </div>
     </body>
 </html>

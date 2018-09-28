@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Validation\Validator;
 use App\Text;
-use App\File;
+use App\Note;
 use App\Location;
 
 
@@ -31,45 +31,31 @@ class TextController extends Controller
     public function store(Request $request)
     {
 
-        if ($request->all() !== "") {
+        //Validazione dell'input
+        $validatedData = $request->validate([
+            'content' => 'required|alpha_num|max:255',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+        ]);    
 
-            $text = new Text;
-            $file = new File;
-            $location = new Location;
+        $text = new Text;
+        $note = new Note;
+        $location = new Location;
 
-            $filename = 'text-'.time().'.txt';
+        $location->latitude = $request['latitude'];
+        $location->longitude = $request['longitude'];
+        $location->save();
+        $location->note()->save($note);
 
-            $content = $request['content'];
+        $text->content = $request['content'];
+        $text->char_number = mb_strlen($request['content']);       
 
-            //$path = Storage::disk('local')->put($filename, $content);
-            //$path = Storage::disk('local')->putFile('files', $request->file('file'));
-
-            //dd($path);
-
-            $file->size = $request['size'];
-            $file->format = $request['format'];
-            $file->path = 'not file';
-
-            $location->latitude = $request['latitude'];
-            $location->longitude = $request['longitude'];
-
-            $text->content = $content;
-            $text->char_number = mb_strlen($content);     
-
-            $text->save();
-            $location->save();
-
-            $location->file()->save($file);                   //Relazione tra Model File e Location
-            $text->file()->save($file);                       //Relazione tra Model File e Text
-
+        $note->save();
+        $note->text()->save($text);
             
+        $text->save();
 
-            return 'file salvato!';
-        }else{
-            return 'Invalid parameters';    
-        }
-
-        
+        return Response(201);    
 
     }
 
@@ -84,54 +70,8 @@ class TextController extends Controller
         if(Text::find($id)){
             return Text::find($id);
         }else {
-            return 'Error: ID not found';
+            return Response(404);
         }
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id) 
-    {
-        if(Text::find($id)){
-            $text = Text::find($id);
-            $text->content = $request['content'];
-            $text->char_number = mb_strlen($request['content']);
-            $text->save();
-
-            return 202;
-        }else{
-            echo 'Error: ID not found';
-            return 404;
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id) 
-    {
-        if(Text::find($id)) {
-            Text::find($id)->delete();    
-
-            echo 'Note succesfully deleted';                    //TODO Remove related row in File and Location model
-            return 204;
-        }else {
-            echo 'Error: ID not found';
-        }
-               
-    }
-
-    public function showForm() 
-    {
-        return view('upload');
     }
 
 }

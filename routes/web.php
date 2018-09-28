@@ -15,8 +15,3 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('file', 'textController@showForm')->name('upload.file');
-
-Route::post('/file', 'textController@store');
-
-

@@ -4,21 +4,22 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;	
-use App\Photo;
+use Illuminate\Validation\Validator;
+use App\Audio;
 use App\File;
 use App\Location;
 use App\Note;
 
-class PhotoController extends Controller
+class AudioController extends Controller
 {
-     /**
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
     public function index()
     {
-        return Photo::All();
+        return Audio::All();
     }
 
     /**
@@ -34,33 +35,31 @@ class PhotoController extends Controller
         $validatedData = $request->validate([
             'size' => 'required|numeric',
             'format' => 'required|alpha',
-            'width' => 'required|numeric',
-            'height' => 'required|numeric',
+            'duration' => 'required|numeric',
+            'bit_rate' => 'required|numeric',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
 
-        $photo = new Photo;
+        $audio = new Audio;
         $file = new File;
         $location = new Location;
         $note = new Note;
 
-        $filename = 'image-'.time().'.'.$request['format'];
-        $fullPath = 'photos/'.$filename;
+        $filename = 'audio-'.time().'.'.$request['format'];
 
-        $image_data = $request['image_data'];
-       	$image_data = str_replace('data:image/gif;base64,', '', $image_data);
-        $image_data = str_replace(' ', '+', $image_data);
-
-        Storage::disk('local')->put($fullPath, base64_decode($image_data));
+        $audio_data = $request['audio_data'];
+            
+		$fullPath = 'audios/'.$filename;
+        Storage::disk('local')->put($fullPath, base64_decode($audio_data));
 
         $file->size = $request['size'];
         $file->format = $request['format'];
         $file->path = $fullPath;
 
-        $photo->width = $request['width'];
-        $photo->height = $request['height'];
-        $photo->save();
+        $audio->duration = $request['duration'];
+        $audio->bit_rate = $request['bit_rate'];
+        $audio->save();
 
         $location->latitude = $request['latitude'];
         $location->longitude = $request['longitude'];
@@ -70,8 +69,8 @@ class PhotoController extends Controller
         $note->save();
 
         $note->file()->save($file);                   
-        $photo->file()->save($file);                       
-       
+        $audio->file()->save($file);                       
+            
         return Response(201);
     }
 
@@ -83,8 +82,8 @@ class PhotoController extends Controller
      */
     public function show($id)
     {
-        if(Photo::find($id)){
-            return Photo::find($id);
+        if(Audio::find($id)){
+            return Audio::find($id);
         }else {
             return Response(404);
         }

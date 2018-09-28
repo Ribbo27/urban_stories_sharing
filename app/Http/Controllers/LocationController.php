@@ -12,6 +12,10 @@ class LocationController extends Controller
     }
 
     public function show($id) {
-    	return Location::find($id);
+    	if(Location::find($id)){
+            return Location::find($id);
+        }else {
+            return Response(404);
+        }
     }
 }

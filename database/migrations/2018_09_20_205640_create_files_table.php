@@ -17,18 +17,16 @@ class CreateFilesTable extends Migration
             $table->increments('id');
             $table->float('size');
             $table->text('format');
-            $table->mediumText('path');
+            $table->mediumText('path')->nullable();
             $table->timestamps();
-            $table->integer('text_id')->unsigned()->nullable();
+            $table->integer('note_id')->unsigned();
             $table->integer('photo_id')->unsigned()->nullable();
             $table->integer('audio_id')->unsigned()->nullable();
             $table->integer('video_id')->unsigned()->nullable();
-            $table->integer('location_id')->unsigned()->nullable();
-            $table->foreign('text_id')->references('id')->on('texts');
+            $table->foreign('note_id')->references('id')->on('notes');
             $table->foreign('photo_id')->references('id')->on('photos');
             $table->foreign('audio_id')->references('id')->on('audios');
             $table->foreign('video_id')->references('id')->on('videos');
-            $table->foreign('location_id')->references('id')->on('locations');
         });
     }
 
